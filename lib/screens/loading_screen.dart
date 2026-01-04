@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
+import '../services/location.dart';
+import 'package:http/http.dart' as http;
 
 class LoadingScreen extends StatefulWidget {
   const LoadingScreen({super.key});
@@ -8,43 +9,33 @@ class LoadingScreen extends StatefulWidget {
 }
 
 class _LoadingScreenState extends State<LoadingScreen> {
-
   @override
   void initState() {
     super.initState();
     getLocation();
   }
 
-
   void getLocation() async {
-    // // Check permission status
-    // LocationPermission permission = await Geolocator.checkPermission();
-    // // Request permission if not granted
-    // if (permission == LocationPermission.denied) {
-    //   permission = await Geolocator.requestPermission();
-    //   if (permission == LocationPermission.denied) {
-    //     print('Location permission denied');
-    //     return;
-    //   }
-    // }
-    // // If permission is permanently denied, show error
-    // if (permission == LocationPermission.deniedForever) {
-    //   print('Location permission permanently denied');
-    //   return;
-    // }
-    // Get the position
-    Position position = await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(accuracy: LocationAccuracy.low),
+    Location location = Location();
+    await location.getCurrentLocation();
+    print('Latitude: ${location.latitude}, Longitude: ${location.longitude}');
+  }
+
+  void getData() async {
+    http.Response response = await http.get(
+      Uri.parse('https://jsonplaceholder.typicode.com/todos/1'),
     );
-    print(position);
-    print(position.latitude);
-    print(position.longitude);
+    if (response.statusCode == 200) {
+      String data = response.body;
+      print(data);
+    } else {
+      print('Failed to get data. Status code: ${response.statusCode}');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-
-    );
+    getData();
+    return Scaffold(appBar: AppBar(title: const Text('Loading Screen')));
   }
 }
